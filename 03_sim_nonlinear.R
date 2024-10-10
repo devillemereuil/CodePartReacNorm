@@ -2,14 +2,6 @@ conflicted::conflict_prefer("filter", "dplyr")
 conflicted::conflict_prefer("unpack", "tidyr")
 conflicted::conflicts_prefer(purrr::set_names)
 
-#########################################################################################################
-##                                                                                                     ##
-##                          Code to simulate and analyse non-linear reaction norms                     ##
-##                                      Corresponds to Figure 5                                        ##
-##                                    Pierre de Villemereuil (2023)                                    ##
-##                                                                                                     ##
-#########################################################################################################
-
 here::i_am("Scripts R/03_sim_nonlinear.R")
 
 # Libraries
@@ -21,6 +13,8 @@ library(cubature)
 library(nlme)
 library(furrr)
 library(here)
+
+setwd(here())
 
 options(mc.cores = parallel::detectCores() - 2)
 plan(multicore)
@@ -393,8 +387,8 @@ compute_va_e <- function(shape, theta, G_theta, e, width = 10, fixed = NA) {
     # Computing the logdet of vcov
     logdet <- calc_logdet(G_theta)
 
-    # Average
-    k <- shape(e, matrix(full_theta, nrow = length(full_theta)))
+#     # Average
+#     k <- shape(e, matrix(full_theta, nrow = length(full_theta)))
 
     # Computing the integral for Psi
     Psi <- cubature::hcubature(
@@ -412,7 +406,7 @@ compute_va_e <- function(shape, theta, G_theta, e, width = 10, fixed = NA) {
         absError   = 0.0001,
         vectorInterface = TRUE
     )$integral
-      
+
     # Now, computing V_A_e and the gamma-decomposition
     out <-
         tibble(V_A = as.numeric(t(Psi) %*% G_theta %*% Psi),
@@ -447,8 +441,8 @@ compute_va <- function(shape, theta, G_theta, env, width = 10, fixed = NA, avera
                               width = width, fixed = fixed),
             .progress = TRUE)
 
-    if (average) { 
-        out <- 
+    if (average) {
+        out <-
             out |>
             summarise(V_A = mean(V_A),
                       across(starts_with("Gamma"), mean)) |>
@@ -652,7 +646,7 @@ p_params <-
           strip.text   = element_text(size = 20))
 
 # Saving the plot
-cairo_pdf(here("NonLin_Parameters.pdf"), height = 5, width = 8)
+cairo_pdf("Figs/NonLin_Parameters.pdf", height = 5, width = 8)
 p_params
 dev.off()
 
@@ -701,7 +695,7 @@ p_var <-
           strip.text   = element_text(size = 20))
 
 # Saving the plot
-cairo_pdf(here("NonLin_Variances.pdf"), height = 5, width = 8)
+cairo_pdf("Figs/NonLin_Variances.pdf", height = 5, width = 8)
 p_var
 dev.off()
 
@@ -1052,7 +1046,7 @@ p_var_gg <-
           strip.text   = element_text(size = 20))
 
 # Now we can generate the full graph
-cairo_pdf(here("NonLin_Full.pdf"), width = 12, height = 16)
+cairo_pdf("Figs/NonLin_Full.pdf", width = 12, height = 16)
 (p_eq_sig / p_sig / p_sig_var_e / p_var_sig +
  theme(plot.margin = unit(c(0,30,0,0), "pt"))) +
     plot_layout(heights = c(1, 2, 2, 2))  |
