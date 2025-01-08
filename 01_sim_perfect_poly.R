@@ -322,7 +322,7 @@ tbl_bias <-
            V_Plas_CS = V_Plas_CS - as.numeric(t(beta) %*%
                                               mat_env[["VCV"]][[unique(Scenario)]] %*%
                                               beta),
-           V_AxE_CS   = (V_Add_CS - V_A_CS) - 
+           V_AxE_CS   = (V_Add_CS - V_A_CS) -
                        compute_var_AxE(mat_Sigma,
                                       mat_env[["VCV"]][[unique(Scenario)]]),
            V_Add_CS  = V_Add_CS - compute_var_add(mat_Sigma,
@@ -544,7 +544,8 @@ tbl_plot <-
                                   `1` = "paste(N[Env]==10,', ',N[Gen]==20,', ',N[Rep]==20)",
                                   `2` = "paste(N[Env]==4,', ',N[Gen]==20,', ',N[Rep]==20)",
                                   `3` = "paste(N[Env]==4,', ',N[Gen]==5,', ',N[Rep]==5)"),
-           Source_Fmt = fct_relabel(Source, \(chr) { str_c("paste('", chr, "')") }))
+           Source_Fmt = fct_relabel(Source, \(chr) { str_c("paste('", chr, "')") })) |>
+    filter(Parameter != "N[e]")
 
 tbl_plot_with_V <- tbl_plot
 
@@ -613,11 +614,11 @@ tbl_plot_sub <-
     mutate(Source_Fmt = if_else(Source_Fmt == "paste('Curve Parameter')",
                                 "paste('Curve Parameter (discrete)')",
                                 Source_Fmt) |>
-                        fct_rev()) |> 
+                        fct_rev()) |>
     filter(Parameter != "N[e]")
 tbl_true_sub <-
     tbl_true |>
-    filter(Scenario %in% c(1, 3)) 
+    filter(Scenario %in% c(1, 3))
 
 p_part_sub <-
     ggplot(tbl_plot_sub) +
